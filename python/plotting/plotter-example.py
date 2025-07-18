@@ -19,8 +19,8 @@ ind = int(sys.argv[1])
 data_id = rapplot.read_data_id("output",ind)
 
 #Computing relevant constants
-M=5e6 * rapplot.MSUN
-d=8 * rapplot.KPC
+M=6.2e9 * rapplot.MSUN
+d=16800 * rapplot.KPC
 
 rg = (rapplot.G*M/rapplot.SPEED_OF_LIGHT**2.)
 

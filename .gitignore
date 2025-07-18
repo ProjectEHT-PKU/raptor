@@ -5,3 +5,6 @@ RAPTOR
 harm3d.txt
 .DS_Store
 __pycache__
+.vscode/
+model.zip
+src.zip

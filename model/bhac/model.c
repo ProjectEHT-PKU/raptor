@@ -819,6 +819,7 @@ void init_grmhd_data(char *fname) {
                              block_info[i].dxc_block);
 
                 p[KRHO][i][c][0] = prim[KRHO];
+                // printf("%f \n",p[KRHO][i][c][0]);
                 p[UU][i][c][0] = prim[UU];
 
                 p[U1][i][c][0] = prim[U1];
@@ -1182,7 +1183,13 @@ int get_fluid_params(double X[NDIM], struct GRMHD *modvar) {
     double xc = r * sin(X[2]) * cos(X[3]);
     double yc = r * sin(X[2]) * sin(X[3]);
     double rc = sqrt(xc * xc + yc * yc);
-
+    // if (fabs(X[3]-1.) <0.0005){
+    // FILE* fp = NULL;
+    // fp = fopen("phi_cut_profile.txt","a+");
+    // //fprintf(fp,"%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f \n",block,pixel,phase_index,axion_norm,timei,ri,alphai,rf,alphaf,thi,thf,phii,phif,log10(creal(S_A[0])),log10(creal(S_A[1])),log10(creal(S_A[2])),carg(S_A[1]+I*S_A[2]));
+    // fprintf(fp,"%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f \n",get_r(X),X[2],Bp[1],Bp[2],Bp[3],gV_u[1],gV_u[2],gV_u[3],(*modvar).B,(*modvar).n_e,(*modvar).theta_e);
+    // fclose(fp);
+    // }
     if ((Bsq / (rho + 1e-20) > SIGMA_CUT) || r > RT_OUTER_CUTOFF ||
         (*modvar).theta_e > THETAE_MAX ||
         (*modvar).theta_e < THETAE_MIN) { // excludes all spine emmission

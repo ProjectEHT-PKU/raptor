@@ -52,15 +52,13 @@
 #define num_pixels_1d 10
 #define tot_pixels 100
 
-#define USERSPEC (0)
+#define USERSPEC (1)
 #define nspec 4
 
 typedef struct Camera {
     double IQUV[tot_pixels][num_frequencies][4]; // intensity
     double tau[tot_pixels][num_frequencies];     // intensity
     double tauF[tot_pixels][num_frequencies];    // intensity
-    double pdf[tot_pixels][num_frequencies];    // intensity
-    double avg[tot_pixels][num_frequencies];    // intensity
     double alpha[tot_pixels];                    // impact parameter
     double beta[tot_pixels];                     // impact parameter
     double lcorner[2];                           // lower left corner of a block

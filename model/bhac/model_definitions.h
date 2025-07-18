@@ -8,7 +8,7 @@
 #ifndef MODEL_DEFINITIONS_H
 #define MODEL_DEFINITIONS_H
 
-#define SFC 0
+#define SFC 1
 
 #define KRHO 0
 #define UU 1
@@ -30,7 +30,7 @@ extern int XI;
 
 #define NP 8
 
-#define NSPIN 3
+#define NSPIN 3 //Change this into 5 for Mizuno's GRMHD, 3 for the GRMHD in this folder.
 
 #define PLUS 1
 #define MINUS -1

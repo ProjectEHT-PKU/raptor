@@ -11,12 +11,14 @@
 #include "model_functions.h"
 #include "model_global_vars.h"
 
+#include "time.h"
+
 // GLOBAL VARS
 //////////////
 
 char GRMHD_FILE[256];
 
-double MBH, M_UNIT, TIME_INIT, INCLINATION;
+double MBH, M_UNIT, TIME_INIT, INCLINATION, axion_norm,axion_omega,phase_index;
 double R_HIGH, R_LOW;
 double FREQS_PER_DEC, FREQ_MIN, FREQ_MAX;
 
@@ -61,6 +63,9 @@ void read_model(char *argv[]) {
     fscanf(input, "%s %s %lf", temp, temp2, &FREQS_PER_DEC);
     fscanf(input, "%s %s %lf", temp, temp2, &FREQ_MIN);
     fscanf(input, "%s %s %lf", temp, temp2, &STEPSIZE);
+    fscanf(input, "%s %s %lf", temp, temp2, &axion_norm);
+    fscanf(input, "%s %s %lf", temp, temp2, &axion_omega);
+    fscanf(input, "%s %s %lf", temp, temp2, &phase_index);
     fscanf(input, "%s %s %d", temp, temp2, &max_level);
 
     // Second argument: GRMHD file
@@ -92,7 +97,7 @@ void read_model(char *argv[]) {
     fprintf(stderr, "FREQS_PER_DEC \t= %lf \n", FREQS_PER_DEC);
     fprintf(stderr, "FREQ_MIN \t= %g Hz\n", FREQ_MIN);
     fprintf(stderr, "STEPSIZE \t= %g \n", STEPSIZE);
-
+    fprintf(stderr, "AXION \tnorm= %g,omega=%g,phase=%g \n", axion_norm,axion_omega,phase_index);
     // to cgs units
     MBH *= MSUN;
     SOURCE_DIST *= KPCTOCM;
@@ -103,7 +108,7 @@ void read_model(char *argv[]) {
 // For a single block this function will iterate over the pixels and call
 // geodesic integrations as well as radiation transfer
 void calculate_image_block(struct Camera *intensityfield,
-                           double frequencies[num_frequencies]) {
+                           double frequencies[num_frequencies],int block) {
 
 #pragma omp parallel for shared(frequencies, intensityfield, p)                \
     schedule(static, 1)
@@ -129,7 +134,7 @@ void calculate_image_block(struct Camera *intensityfield,
                                          &f_x, &f_y, &p, 0,
                                          (*intensityfield).IQUV[pixel][f],
                                          &(*intensityfield).tau[pixel][f],
-                                         &(*intensityfield).tauF[pixel][f]);
+                                         &(*intensityfield).tauF[pixel][f],axion_omega,axion_norm,phase_index,block,pixel);
         }
 
 #else

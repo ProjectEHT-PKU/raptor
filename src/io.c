@@ -18,7 +18,7 @@ void output_files(struct Camera *intensityfield,
                   double energy_spectrum[num_frequencies][nspec],
                   double frequencies[num_frequencies]) {
     struct stat st = {0};
-    char spec_folder[64] = "output";
+    char spec_folder[128] = "output";
 
     if (stat(spec_folder, &st) == -1) {
         mkdir(spec_folder, 0700);

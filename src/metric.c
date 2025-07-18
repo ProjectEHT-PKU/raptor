@@ -26,10 +26,12 @@ void metric_dd(double X_u[4], double g_dd[4][4]) {
     for (int i = 1; i < DIM; i++)
         g_dd[i][i] = 1.;
 
+
 #elif (metric == BL || metric == MBL) // (modified) Boyer-Lindquist coordinates
 
     double r = logscale ? exp(X_u[1]) : X_u[1];
-    double rfactor = logscale ? r : 1.;
+    double rfactor = logscale ? r : 1.;  
+
     double theta = X_u[2];
     double sint = sin(theta);
     double cost = cos(theta);
@@ -50,6 +52,7 @@ void metric_dd(double X_u[4], double g_dd[4][4]) {
     double r = logscale ? exp(X_u[1]) + R0 : X_u[1];
     double rfactor = logscale ? r : 1.;
     double theta = X_u[2];
+
     double cth = cos(theta);
     double sth = sin(theta);
     double sth2 = sth * sth;
@@ -75,6 +78,7 @@ void metric_dd(double X_u[4], double g_dd[4][4]) {
 #elif (metric == MKSHARM) // Proper MKS coords
 
     double r = exp(X_u[1]) + R0;
+
     double theta =
         M_PI * X_u[2] + 0.5 * (1. - hslope) * sin(2. * M_PI * X_u[2]);
 

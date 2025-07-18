@@ -32,6 +32,7 @@ void init_camera(struct Camera **intensityfield) {
         exit(1);
     }
     tot_blocks = num_blocks * num_blocks2;
+    printf("%d,%d,%d\n",num_pixels_1d,IMG_HEIGHT,num_blocks2);
     (*intensityfield) = malloc((tot_blocks) * sizeof(struct Camera));
     for (int block = 0; block < tot_blocks; block++) {
         (*intensityfield)[block].level = 1;
