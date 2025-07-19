@@ -658,8 +658,8 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
         FILE *fp1=NULL;
         fp1 = fopen("NormR.csv", "r");
         double temp[3];
-        for(int m = 0; m < 38; m++){
-        for(int n = 0; n < 490;n++){
+        for(int m = 0; m < 23; m++){
+        for(int n = 0; n < 2010;n++){
             // fscanf(fp1, "%lf,",&temp[0]);
             // fscanf(fp1, "%lf,",&temp[1]);
             // fscanf(fp1, "%lf\n",&temp[2]);
