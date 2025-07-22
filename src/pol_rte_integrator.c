@@ -651,15 +651,17 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     // }
 
         //Axion:Start
+        int omega_count=23;
+        int r_count=2400;
         
         static int flagg = 0;
-        static double Axion_Radial[50][500][3];
+        static double Axion_Radial[omega_count][r_count][3];
         if(flagg == 0){
         FILE *fp1=NULL;
         fp1 = fopen("NormR.csv", "r");
         double temp[3];
-        for(int m = 0; m < 23; m++){
-        for(int n = 0; n < 2010;n++){
+        for(int m = 0; m < omega_count; m++){
+        for(int n = 0; n < r_count;n++){
             // fscanf(fp1, "%lf,",&temp[0]);
             // fscanf(fp1, "%lf,",&temp[1]);
             // fscanf(fp1, "%lf\n",&temp[2]);
@@ -704,7 +706,7 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
           ++j;
         }
         --j;
-        if (j>=489){j =488;}
+        if (j>=r_count-1){j =r_count-2;}
 
         double middle_var_i_j,middle_var_ip1_j,middle_var_i_j_f,middle_var_ip1_j_f;
         middle_var_i_j= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(ri-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
@@ -716,7 +718,7 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
           ++j;
         }
         --j;
-        if (j>=489){j =488;}
+        if (j>=r_count-1){j =r_count-2;}
         middle_var_i_j_f= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(rf-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
         middle_var_ip1_j_f= ((Axion_Radial[i+1][j+1][2]-Axion_Radial[i+1][j][2])*(rf-Axion_Radial[i+1][j][1])/(Axion_Radial[i+1][j+1][1]-Axion_Radial[i+1][j][1])+Axion_Radial[i+1][j][2]);
         double radialf = (middle_var_ip1_j_f - middle_var_i_j_f)*(axion_omega - Axion_Radial[i][j][0])/(Axion_Radial[i+1][j][0]-Axion_Radial[i][j][0])+middle_var_i_j_f;
