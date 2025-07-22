@@ -651,8 +651,8 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     // }
 
         //Axion:Start
-        int omega_count=23;
-        int r_count=2400;
+        #define omega_count 23
+        #define r_count 2400
         
         static int flagg = 0;
         static double Axion_Radial[omega_count][r_count][3];
