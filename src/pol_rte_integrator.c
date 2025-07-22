@@ -702,11 +702,13 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
         }
         --i;
         int j=1;
-        while (Axion_Radial[i][j][1] < ri) {
+        while (Axion_Radial[i][j][1] < ri && j <=r_count-2) {
           ++j;
         }
         --j;
-        if (j>=r_count-1){j =r_count-2;}
+        // if (j>1000) {
+        //     printf("1j=%d,ri=%f\n",j,ri);};
+        // if (j>=r_count-1){j =r_count-2;}
 
         double middle_var_i_j,middle_var_ip1_j,middle_var_i_j_f,middle_var_ip1_j_f;
         middle_var_i_j= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(ri-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
@@ -714,11 +716,14 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
         double radiali = (middle_var_ip1_j - middle_var_i_j)*(axion_omega - Axion_Radial[i][j][0])/(Axion_Radial[i+1][j][0]-Axion_Radial[i][j][0])+middle_var_i_j;
         j= 1;
-        while (Axion_Radial[i][j][1] < rf) {
+        while (Axion_Radial[i][j][1] < rf && j <=r_count-2) {
           ++j;
         }
         --j;
-        if (j>=r_count-1){j =r_count-2;}
+
+        // if (j>1000) {
+        //     printf("1j=%d,rf=%f\n",j,rf);};
+        // if (j>=r_count-1){j =r_count-2;}
         middle_var_i_j_f= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(rf-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
         middle_var_ip1_j_f= ((Axion_Radial[i+1][j+1][2]-Axion_Radial[i+1][j][2])*(rf-Axion_Radial[i+1][j][1])/(Axion_Radial[i+1][j+1][1]-Axion_Radial[i+1][j][1])+Axion_Radial[i+1][j][2]);
         double radialf = (middle_var_ip1_j_f - middle_var_i_j_f)*(axion_omega - Axion_Radial[i][j][0])/(Axion_Radial[i+1][j][0]-Axion_Radial[i][j][0])+middle_var_i_j_f;
