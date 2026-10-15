@@ -27,7 +27,7 @@ $(OBJDIR):
 	mkdir -p $@
 
 $(OBJECTS): $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 
 clean:
