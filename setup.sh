@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eu
 
 echo "RAPTOR setup script"
 
@@ -9,6 +10,11 @@ CODE="bhac"
 GRID="smr"
 RAD="pol"
 SF="nosfc"
+BFLIP="plus"
+SIGMA_CUT=""
+UNIFORM=""
+THETAE_MIN=""
+THETAE_MAX=""
 
 for arg in "$@"
 do
@@ -41,38 +47,65 @@ do
         BFLIP="${arg#*=}"
         shift # Remove --cache= from processing
         ;;
+        --sigma-cut=*) SIGMA_CUT="${arg#*=}" ;;
+        --uniform=*) UNIFORM="${arg#*=}" ;;
+        --thetae-min=*) THETAE_MIN="${arg#*=}" ;;
+        --thetae-max=*) THETAE_MAX="${arg#*=}" ;;
+        *) echo "Unknown setup option: $arg" >&2; exit 1 ;;
     esac
 done
 
-if [ "$RAPTOR" == "" ] ;
+# Validate before copying or changing any files. Keep the legacy short options.
+case "$CODE" in bhac|harm3d|hamr) ;; *) echo "Invalid code: $CODE" >&2; exit 1 ;; esac
+case "$METRIC" in cks|mks) ;; *) echo "Invalid metric: $METRIC" >&2; exit 1 ;; esac
+case "$CODE:$METRIC" in harm3d:cks|hamr:cks) echo "CKS requires BHAC" >&2; exit 1 ;; esac
+case "$INT" in ver|rk2|rk4|rk45) ;; *) echo "Invalid integrator: $INT" >&2; exit 1 ;; esac
+case "$GRID" in smr|SMR) GRID=SMR ;; amr|AMR) GRID=AMR ;; *) echo "Invalid grid: $GRID" >&2; exit 1 ;; esac
+case "$RAD" in pol|unpol) ;; *) echo "Invalid radiation: $RAD" >&2; exit 1 ;; esac
+case "$SF" in sfc|nosfc) ;; *) echo "Invalid SFC: $SF" >&2; exit 1 ;; esac
+case "$BFLIP" in plus|minus) ;; *) echo "Invalid polarity: $BFLIP" >&2; exit 1 ;; esac
+case "$UNIFORM" in ''|0|1) ;; *) echo "Invalid uniform flag: $UNIFORM" >&2; exit 1 ;; esac
+for value in "$SIGMA_CUT" "$THETAE_MIN" "$THETAE_MAX"; do
+    if [ -n "$value" ]; then
+        awk -v x="$value" 'BEGIN {
+            if (x !~ /^[+]?[0-9]*[.]?[0-9]+([eE][+-]?[0-9]+)?$/ || x+0 <= 0) exit 1
+        }' || { echo "Invalid positive numeric option: $value" >&2; exit 1; }
+    fi
+done
+if [ -n "$THETAE_MIN$THETAE_MAX" ]; then
+    awk -v lo="${THETAE_MIN:-1e-3}" -v hi="${THETAE_MAX:-100}" \
+        'BEGIN { if (lo+0 >= hi+0) exit 1 }' || { echo "Invalid theta_e bounds" >&2; exit 1; }
+fi
+
+if [ "${RAPTOR:-}" == "" ] ;
 then
 	echo "Code dir is empty, set RAPTOR enviroment variable first"
 	echo "export RAPTOR=/path/to/code"
 	echo "Aborting..."
-	exit
+	exit 1
 else
 	echo "Code located at $RAPTOR"
 	echo " "
 fi
 
-rsync -u -v $RAPTOR/run/* .
+rsync -v "$RAPTOR"/run/* .
 
 echo "Copying files"
 if [ "$CODE" == "bhac" ] ;
 then
-        rsync -v -u $RAPTOR/model/bhac/* .
+        rsync -v "$RAPTOR"/model/bhac/* .
 
 	       echo "done copying"
 
 elif  [ "$CODE" == "harm3d" ] ;
 then
-        rsync -v -u $RAPTOR/model/harm3d/* .
+        rsync -v "$RAPTOR"/model/harm3d/* .
 elif  [ "$CODE" == "hamr" ] ;
 then
-        rsync -v -u $RAPTOR/model/HAMR/* .
+        rsync -v "$RAPTOR"/model/HAMR/* .
 else
  echo "no grmhd model picked. Aborting."
- exit
+ exit 1
 fi
 
 if [ "$CODE" == "bhac" ] ;
@@ -154,6 +187,16 @@ else
 fi
 
 
+# Change only macros explicitly requested; the official model headers remain templates.
+for setting in "SIGMA_CUT:$SIGMA_CUT" "UNIF:$UNIFORM" "THETAE_MIN:$THETAE_MIN" "THETAE_MAX:$THETAE_MAX"; do
+    macro="${setting%%:*}"
+    value="${setting#*:}"
+    if [ -n "$value" ]; then
+        grep -q "^#define $macro " definitions.h || { echo "Missing macro: $macro" >&2; exit 1; }
+        sed -i "s/^#define $macro .*/#define $macro ($value)/" definitions.h
+    fi
+done
+
 echo " "
 echo "Succesfully initialized."
 echo " "
@@ -161,12 +204,10 @@ echo " "
 echo "Start compilation"
 echo " "
 
-make clean && make all
-
-if [ $? -ne 0 ];
+if ! { make clean && make all; };
 then
     echo "Compilations unsuccesful"
-    exit
+    exit 1
 else
     echo "Compilations succesful"
 fi

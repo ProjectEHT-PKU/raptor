@@ -1,9 +1,12 @@
-CC = h5cc -I$(RAPTOR)/src -I$(PWD)
+# GNU make's built-in CC=cc must not override the HDF5 wrapper default.
+ifeq ($(origin CC),default)
+CC = $(if $(HDF5_CC),$(HDF5_CC),h5cc)
+endif
+CPPFLAGS += -I$(RAPTOR)/src -I$(CURDIR)
 CFLAGS = -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP
 LDFLAGS = -fopenmp -lm -lgsl -lgslcblas
 
-VPATH=$(RAPTOR)/src:
-CPATH=$(RAPTOR)/src:
+VPATH=$(RAPTOR)/src
 
 OBJDIR=build
 
@@ -24,7 +27,7 @@ $(OBJDIR):
 	mkdir -p $@
 
 $(OBJECTS): $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 
 clean:
