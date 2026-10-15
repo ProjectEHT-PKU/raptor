@@ -8,6 +8,7 @@
 
 #include "definitions.h"
 #include "model_definitions.h"
+#include "axion.h"
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
@@ -106,7 +107,8 @@ void integrate_geodesic(double alpha, double beta, double *lightpath,
 void radiative_transfer_polarized(double *lightpath, int steps,
                                   double frequency, double *f_x, double *f_y,
                                   double *p, int PRINT_POLAR, double *IQUV,
-                                  double *tau, double *tauF,double axion_omega,double axion_norm,double phase_index,int block,int pixel);
+                                  double *tau, double *tauF,
+                                  const AxionModel *axion, int block, int pixel);
 
 double radiative_transfer_unpolarized(double *lightpath, int steps,
                                       double *frequency,

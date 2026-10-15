@@ -1,0 +1,37 @@
+PASS table interpolation, inclusive endpoints, single alpha, errors
+PASS malformed/short/nonrectangular/nonmonotonic/nonfinite tables
+PASS dynamic dimensions, long CSV lines, extreme finite axes
+PASS zero baseline bypass, validation, unsupported coordinate failfast
+PASS field alpha/omega independence, 16 phases, fixed window/t_ref, domains
+PASS unchanged W25,15 including tiny nonzero far-window values
+PASS BL/KS/MKSBHAC same-event covariance, background spin, horizon limit
+PASS immutable parallel reads (8 OpenMP max threads)
+PASS read-only existing CSV /home/canoziia/MyProject/PHYS/radial-function/reference/result_a=0.9375_l1m1.txt: 23 x 2400
+PASS read-only existing CSV /home/canoziia/MyProject/PHYS/radial-function/reference/result_a=0.99_l1m1.txt: 15 x 2400
+All axion tests passed.
+PASS 128 synthetic input/startup tests (POL=1 metric=6)
+PASS 128 synthetic input/startup tests (POL=1 metric=1)
+PASS 128 synthetic input/startup tests (POL=1 metric=3)
+PASS 127 synthetic input/startup tests (POL=0 metric=6)
+PASS 127 synthetic input/startup tests (POL=1 metric=8)
+PASS table interpolation, inclusive endpoints, single alpha, errors
+PASS malformed/short/nonrectangular/nonmonotonic/nonfinite tables
+PASS dynamic dimensions, long CSV lines, extreme finite axes
+PASS zero baseline bypass, validation, unsupported coordinate failfast
+PASS field alpha/omega independence, 16 phases, fixed window/t_ref, domains
+PASS unchanged W25,15 including tiny nonzero far-window values
+PASS BL/KS/MKSBHAC same-event covariance, background spin, horizon limit
+PASS immutable parallel reads (8 OpenMP max threads)
+PASS read-only existing CSV /home/canoziia/MyProject/PHYS/radial-function/reference/result_a=0.9375_l1m1.txt: 23 x 2400
+PASS read-only existing CSV /home/canoziia/MyProject/PHYS/radial-function/reference/result_a=0.99_l1m1.txt: 15 x 2400
+All axion tests passed.
+PASS 128 synthetic input/startup tests (POL=1 metric=6)
+PASS curved MKSBHAC screen: 396 spin/slope/radius/theta cases
+PASS curved MKSBHAC screen: 396 spin/slope/radius/theta cases
+Building and running production-chain transfer tests (C99/OpenMP)
+PASS: real polarized transfer/tetrad/axion synthetic chain
+Building and running production-chain transfer tests (ASan/UBSan)
+PASS: real polarized transfer/tetrad/axion synthetic chain
+PASS all axion source regressions
+
+EXIT=0

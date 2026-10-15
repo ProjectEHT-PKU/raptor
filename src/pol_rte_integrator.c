@@ -11,6 +11,8 @@
 #include "model_definitions.h"
 #include "model_functions.h"
 #include "model_global_vars.h"
+#include "axion.h"
+#include "axion_transport.h"
 
 // FUNCTIONS
 ////////////
@@ -408,13 +410,12 @@ int check_stiffness(double jI, double jQ, double jU, double jV, double rQ,
 
 void pol_rte_rk4_step(double jI, double jQ, double jU, double jV, double rQ,
                       double rU, double rV, double aI, double aQ, double aU,
-                      double aV, double alphaf,double alphai, double dl_current, double C,
+                      double aV, double dl_current, double C,
                       double complex S_A[]) {
     double complex I0 = S_A[0];
     double complex Q0 = S_A[1];
     double complex U0 = S_A[2];
     double complex V0 = S_A[3];
-    double delta_a = alphaf-alphai;
     // RK4 with constant coefficients
     // k1
     double complex Ik1 =
@@ -489,31 +490,22 @@ void pol_rte_rk4_step(double jI, double jQ, double jU, double jV, double rQ,
     double complex x3 = U0 + 1. / 6. * (Uk1 + 2. * Uk2 + 2. * Uk3 + Uk4);
     double complex x4= V0 + 1. / 6. * (Vk1 + 2. * Vk2 + 2. * Vk3 + Vk4);
 
-    // if (fabs(alphaf) >0.5E-7){
     S_A[0] = x1;
-    S_A[1] = x2*cos(2*delta_a) + x3*sin(2*delta_a);
-    S_A[2] = -x2*sin(2*delta_a) + x3*cos(2*delta_a);
+    S_A[1] = x2;
+    S_A[2] = x3;
     S_A[3] = x4;
-    // }
-    // else{
-    // S_A[0] = x1;
-    // S_A[1] = x2;
-    // S_A[2] = x3;
-    // S_A[3] = x4;
-    // }
+    // Apply axion rotation once per forward segment, outside the plasma solver.
 
 }
 
 void pol_rte_trapezoid_step(double jI, double jQ, double jU, double jV,
                             double rQ, double rU, double rV, double aI,
-                            double aQ, double aU, double aV,double alphaf,double alphai, double dl_current,
-                            double C, double complex S_A[]){
+                            double aQ, double aU, double aV, double dl_current,
+                            double C, double complex S_A[]) {
     double complex I0 = S_A[0];
     double complex Q0 = S_A[1];
     double complex U0 = S_A[2];
     double complex V0 = S_A[3];
-
-    double delta_a = alphaf-alphai;
 
     double u11 = 1. + 0.5 * dl_current * C * aI;
     double u12 = 0.5 * dl_current * C * aQ;
@@ -553,18 +545,11 @@ void pol_rte_trapezoid_step(double jI, double jQ, double jU, double jV,
     double x2 = (y2 - u23 * x3 - u24 * x4) / u22;
     double x1 = (y1 - u12 * x2 - u14 * x4) / u11;
 
-    // if (fabs(alphaf) >0.5E-7){
     S_A[0] = x1;
-    S_A[1] = x2*cos(2*delta_a) + x3*sin(2*delta_a);
-    S_A[2] = -x2*sin(2*delta_a) + x3*cos(2*delta_a);
+    S_A[1] = x2;
+    S_A[2] = x3;
     S_A[3] = x4;
-    // }
-    // else{
-    // S_A[0] = x1;
-    // S_A[1] = x2;
-    // S_A[2] = x3;
-    // S_A[3] = x4;
-    // }
+    // Apply axion rotation once per forward segment, outside the plasma solver.
 
 }
 
@@ -586,12 +571,12 @@ void stokes_to_f(double complex f_u[], double complex f_tetrad_u[],
 }
 
 void pol_integration_step(struct GRMHD modvar, double frequency,
-                          double *dl_current, double C, double X_u[],double X_u_next[],
+                          double *dl_current, double C, double X_u[],
                           double k_u[], double k_d[], int *POLARIZATION_ACTIVE,
                           double complex f_u[], double complex f_tetrad_u[],
                           double tetrad_d[][4], double tetrad_u[][4],
                           double complex S_A[], double *Iinv, double *Iinv_pol,
-                          double *tau, double *tauF,double axion_omega,double axion_norm,double phase_index,int block,int pixel) {
+                          double *tau, double *tauF) {
 
     double jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV;
     double pitch_ang, nu_p;
@@ -618,7 +603,6 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     // Scale the wave vector to correct energy
     LOOP_i k_u[i] *= PLANCK_CONSTANT * frequency /
                      (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT);
-    double dlambda =*dl_current;
     // Convert distance dlambda accordingly
     *dl_current *= (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT) /
                    (PLANCK_CONSTANT * frequency);
@@ -650,118 +634,9 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     //     jV = 0.;
     // }
 
-        //Axion:Start
-        #define omega_count 23
-        #define r_count 2400
-        
-        static int flagg = 0;
-        static double Axion_Radial[omega_count][r_count][3];
-        if(flagg == 0){
-        FILE *fp1=NULL;
-        fp1 = fopen("NormR.csv", "r");
-        double temp[3];
-        for(int m = 0; m < omega_count; m++){
-        for(int n = 0; n < r_count;n++){
-            // fscanf(fp1, "%lf,",&temp[0]);
-            // fscanf(fp1, "%lf,",&temp[1]);
-            // fscanf(fp1, "%lf\n",&temp[2]);
-            // fscanf(fp1, "%lf,",&temp[0]);
-            // fscanf(fp1, "%lf,",&temp[1]);
-            // fscanf(fp1, "%lf\n",&temp[2]);
-
-            fscanf(fp1, "%lf,",&Axion_Radial[m][n][0]);
-            fscanf(fp1, "%lf,",&Axion_Radial[m][n][1]);
-            fscanf(fp1, "%lf\n",&Axion_Radial[m][n][2]);
-        }
-
-
-
-        }
-        fclose(fp1);
-            flagg = 1;
-
-        }
-        double ri, thi, phii,timei, rf, thf, phif,timef;
-        // bl_coord(Xi, &ri, &thi);
-        ri = exp(X_u[1]);
-        phii =X_u[3];
-        timei = X_u[0];
-        thi = X_u[2] + 0.5 * hslope * sin(2. * X_u[2]);
-        // printf("%f",hslope);
-        thi = X_u[2];
-        // bl_coord(Xf, &rf, &thf);
-        double k2 = sqrt(k_u_old[0]*k_u_old[0]-k_u_old[1]*k_u_old[1]-k_u_old[2]*k_u_old[2]-k_u_old[3]*k_u_old[3]);
-        phif =X_u_next[3];
-        timef = X_u_next[0];
-        thf = X_u_next[2] + 0.5 * hslope * sin(2. * X_u_next[2]);
-        rf = exp(X_u_next[1]);
-        thf = X_u_next[2];
-        int i=1;
-        while (Axion_Radial[i][2][0] < axion_omega) {
-          ++i;
-        }
-        --i;
-        int j=1;
-        while (Axion_Radial[i][j][1] < ri && j <=r_count-2) {
-          ++j;
-        }
-        --j;
-        // if (j>1000) {
-        //     printf("1j=%d,ri=%f\n",j,ri);};
-        // if (j>=r_count-1){j =r_count-2;}
-
-        double middle_var_i_j,middle_var_ip1_j,middle_var_i_j_f,middle_var_ip1_j_f;
-        middle_var_i_j= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(ri-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
-        middle_var_ip1_j= ((Axion_Radial[i+1][j+1][2]-Axion_Radial[i+1][j][2])*(ri-Axion_Radial[i+1][j][1])/(Axion_Radial[i+1][j+1][1]-Axion_Radial[i+1][j][1])+Axion_Radial[i+1][j][2]);
-
-        double radiali = (middle_var_ip1_j - middle_var_i_j)*(axion_omega - Axion_Radial[i][j][0])/(Axion_Radial[i+1][j][0]-Axion_Radial[i][j][0])+middle_var_i_j;
-        j= 1;
-        while (Axion_Radial[i][j][1] < rf && j <=r_count-2) {
-          ++j;
-        }
-        --j;
-
-        // if (j>1000) {
-        //     printf("1j=%d,rf=%f\n",j,rf);};
-        // if (j>=r_count-1){j =r_count-2;}
-        middle_var_i_j_f= ((Axion_Radial[i][j+1][2]-Axion_Radial[i][j][2])*(rf-Axion_Radial[i][j][1])/(Axion_Radial[i][j+1][1]-Axion_Radial[i][j][1])+Axion_Radial[i][j][2]);
-        middle_var_ip1_j_f= ((Axion_Radial[i+1][j+1][2]-Axion_Radial[i+1][j][2])*(rf-Axion_Radial[i+1][j][1])/(Axion_Radial[i+1][j+1][1]-Axion_Radial[i+1][j][1])+Axion_Radial[i+1][j][2]);
-        double radialf = (middle_var_ip1_j_f - middle_var_i_j_f)*(axion_omega - Axion_Radial[i][j][0])/(Axion_Radial[i+1][j][0]-Axion_Radial[i][j][0])+middle_var_i_j_f;
-      	// for(int mmm = 0;mmm<5;mmm++){printf("radialf = %f\n",radialf);}  
-        // radiali = exp(-pow(ri/20.0,15));
-        // radialf = exp(-pow(rf/20.0,15));
-
-
-		double alphai = axion_norm /2./M_PI*sin(thi)*cos(-phii+(1022.0+timei)*axion_omega + phase_index/8.0 * M_PI)*radiali*exp(-pow(ri/25.0,15));
-        double alphaf = axion_norm /2./M_PI*sin(thf)*cos(-phif+(1022.0+timef)*axion_omega + phase_index/8.0 * M_PI)*radialf*exp(-pow(rf/25.0,15));
-
-		// double alphai = axion_norm /2./M_PI*cos(phase_index/8.0 * M_PI+0.137373737*M_PI)*exp(-pow(ri/15.0,20));
-
-        // double alphaf = axion_norm /2./M_PI*cos(phase_index/8.0 * M_PI+0.137373737*M_PI)*exp(-pow(rf/15.0,20));
-
-        // if (fabs(thi-M_PI/2.) <0.1){
-        // FILE* fp = NULL;
-        // fp = fopen("thi_cut_profile.txt","a+");
-        // //fprintf(fp,"%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f \n",block,pixel,phase_index,axion_norm,timei,ri,alphai,rf,alphaf,thi,thf,phii,phif,log10(creal(S_A[0])),log10(creal(S_A[1])),log10(creal(S_A[2])),carg(S_A[1]+I*S_A[2]));
-        // fprintf(fp,"%f,%f,%f,%f,%f,%f,%f \n",timei,ri,thi,phii,modvar.B,modvar.n_e,modvar.theta_e);
-        // fclose(fp);
-        // }
-        // printf("%f,%f,%f,%f,%f,%f \n",log10(S_A[1]*S_A[1]),log10(abs(alphaf-alphai)),rf,ri,alphaf,alphai);
-
-        // if (log10(jI) >-42.){
-        //     double temp = rV+100*axion_norm;
-            
-        //     printf("%f,%f,%f,\n",temp,rV,phase_index/8.0 * M_PI);
-        //     rV = temp;
-        //  }
-
-	    // rV +=  axion_norm /2./M_PI * (alphai - alphaf) / dlambda/k2;
-        // rV +=  axion_norm/2./M_PI * exp(-ri)*cos(-phii+(1022.0+timei)*axion_omega + phase_index/8.0 * M_PI);
-        // if (isnan(rV)){
-
-        //printf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f \n",ri,rf,dlambda,*dl_current,scale,k_u[0],k2,k_u[0],k_u[1],k_u[2],k_u[3]);
-        //  }
-    // // Axion: end
+    // Axion field evaluation and rotation are independent of plasma validity.
+    // See axion.c and the forward-segment update in radiative_transfer_polarized.
+    // Do not re-enable a second axion rV term here: that would double-count it.
 
     // turn off plasma effects
         // rQ=0;
@@ -830,10 +705,10 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
     if (!STIFF) {
  
-        pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,alphaf,alphai,
+        pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
                          *dl_current, C, S_A);
     } else {
-        pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,alphaf,alphai,
+        pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
                                *dl_current, C, S_A);
    
     }
@@ -898,6 +773,72 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     }
 }
 
+/* Rotate in the local ray screen without requiring a magnetic field or fluid.
+ * The normal observer is timelike on the supported exterior BL/KS foliations.
+ * Screen handedness follows create_observer_tetrad (para=column 2).
+ */
+int axion_rotate_polarization(const double X[4], const double k[4],
+                              double delta_chi, double complex f[4]) {
+    if (!isfinite(delta_chi)) return 0;
+    if (delta_chi == 0.) return 1;
+    double x[4], wave[4], gu[4][4], gd[4][4];
+    for (int i = 0; i < 4; i++) {
+        if (!isfinite(X[i]) || !isfinite(k[i]) ||
+            !isfinite(creal(f[i])) || !isfinite(cimag(f[i]))) return 0;
+        x[i] = X[i]; wave[i] = k[i];
+    }
+    metric_uu(x, gu);
+    metric_dd(x, gd);
+    if (!isfinite(gu[0][0]) || gu[0][0] >= 0.) return 0;
+    double U[4], Ud[4] = {0}, kd[4] = {0}, K[4], omega = 0.;
+    for (int i = 0; i < 4; i++) U[i] = -gu[i][0] / sqrt(-gu[0][0]);
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) {
+        Ud[i] += gd[i][j] * U[j];
+        kd[i] += gd[i][j] * wave[j];
+    }
+    for (int i = 0; i < 4; i++) omega -= Ud[i] * wave[i];
+    if (!isfinite(omega) || omega <= 0.) return 0;
+    for (int i = 0; i < 4; i++) K[i] = wave[i] / omega - U[i];
+    int axis = -1;
+    double best = 0., beta = 0., projection = 0.;
+    for (int j = 1; j < 4; j++) {
+        double B = Ud[j], C = kd[j] / omega - B;
+        double square = gd[j][j] + B * B - C * C;
+        if (isfinite(square) && square > best) {
+            axis = j; best = square; beta = B; projection = C;
+        }
+    }
+    if (axis < 0 || best <= 0.) return 0;
+    double N = sqrt(best), bdown[4], para[4], perp[4] = {0};
+    for (int i = 0; i < 4; i++) {
+        bdown[i] = gd[i][axis];
+        para[i] = ((i == axis ? 1. : 0.) + beta * U[i] - projection * K[i]) / N;
+    }
+    double determinant = determ(gd, 4);
+    if (!isfinite(determinant) || determinant >= 0.) return 0;
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++)
+    for (int k0 = 0; k0 < 4; k0++) for (int l = 0; l < 4; l++) {
+        if (i == j || i == k0 || i == l || j == k0 || j == l || k0 == l) continue;
+        double eps = (i-j)*(i-k0)*(i-l)*(j-k0)*(j-l)*(k0-l)/12.;
+        perp[i] -= eps * Ud[j] * kd[k0] * bdown[l] / (sqrt(-determinant) * omega * N);
+    }
+    double complex f1 = 0., f2 = 0.;
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) {
+        f1 += gd[i][j] * perp[i] * f[j];
+        f2 += gd[i][j] * para[i] * f[j];
+    }
+    double c = cos(delta_chi), s = sin(delta_chi);
+    double complex d1 = (c - 1.) * f1 - s * f2;
+    double complex d2 = s * f1 + (c - 1.) * f2;
+    double complex rotated[4];
+    for (int i = 0; i < 4; i++) {
+        rotated[i] = f[i] + perp[i] * d1 + para[i] * d2;
+        if (!isfinite(creal(rotated[i])) || !isfinite(cimag(rotated[i]))) return 0;
+    }
+    for (int i = 0; i < 4; i++) f[i] = rotated[i];
+    return 1;
+}
+
 void construct_f_obs_tetrad_u(double *X_u, double *k_u, double complex *f_u,
                               double complex *f_obs_tetrad_u) {
 
@@ -919,13 +860,20 @@ void construct_f_obs_tetrad_u(double *X_u, double *k_u, double complex *f_u,
 void radiative_transfer_polarized(double *lightpath, int steps,
                                   double frequency, double *f_x, double *f_y,
                                   double *p, int PRINT_POLAR, double *IQUV,
-                                  double *tau, double *tauF,double axion_omega,double axion_norm,double phase_index,int block,int pixel) {
+                                  double *tau, double *tauF, const AxionModel *axion,
+                                  int block, int pixel) {
+    LOOP_i IQUV[i] = 0.;
+    if (steps < 0 || steps > max_steps || (steps > 0 && lightpath == NULL)) {
+        fprintf(stderr, "Invalid ray storage contract (steps=%d)\n", steps);
+        exit(EXIT_FAILURE);
+    }
+    if (steps < 2) return;
     int path_counter;
     double dl_current;
 
     double X_u[4], k_u[4], k_d[4], X_u_next[4];
 
-    double Iinv, Iinv_pol;
+    double Iinv = 0., Iinv_pol = 0.;
     int POLARIZATION_ACTIVE = 0;
 
     double tetrad_u[4][4], tetrad_d[4][4];
@@ -957,8 +905,14 @@ void radiative_transfer_polarized(double *lightpath, int steps,
             X_u[i] = lightpath[path_counter * 9 + i];
             k_u[i] = lightpath[path_counter * 9 + 4 + i];
         }
-        LOOP_i {X_u_next[i] = lightpath[(path_counter+1) * 9 + i];}
+        // Valid records are [0,steps). Transfer is forward toward the camera:
+        // current p -> p-1. Never read the unstored lightpath[steps] endpoint.
+        LOOP_i X_u_next[i] = lightpath[(path_counter - 1) * 9 + i];
         dl_current = fabs(lightpath[(path_counter - 1) * 9 + 8]);
+        if (!isfinite(dl_current)) {
+            fprintf(stderr, "Nonfinite ray step at block=%d pixel=%d\n", block, pixel);
+            exit(EXIT_FAILURE);
+        }
 
         // check normalization of k vectors.
         if (fabs(four_velocity_norm(X_u, k_u)) > 1e-6 && get_r(X_u) > 2.)
@@ -969,14 +923,44 @@ void radiative_transfer_polarized(double *lightpath, int steps,
 
         double r_current = get_r(X_u);
 
-        // Check whether the ray is currently in the GRMHD simulation volume
-        if (get_fluid_params(X_u, &modvar) || r_current < RT_OUTER_CUTOFF) {
-        // if (r_current < RT_OUTER_CUTOFF) {
-            pol_integration_step(modvar, frequency, &dl_current, C_CONST, X_u,X_u_next,
+        // Fluid lookup may wrap/modify its coordinate argument. It must not
+        // modify the ray coordinates used for field endpoints and GR transport.
+        double fluid_X[4], wave_geometric[4];
+        LOOP_i { fluid_X[i] = X_u[i]; wave_geometric[i] = k_u[i]; }
+        double dl_geometric = dl_current;
+        memset(&modvar, 0, sizeof(modvar));
+        modvar.igrid_c = -1;
+        int valid_fluid = get_fluid_params(fluid_X, &modvar);
+        if (valid_fluid && r_current < RT_OUTER_CUTOFF &&
+            isfinite(modvar.n_e) && modvar.n_e > 0. &&
+            isfinite(modvar.theta_e) && modvar.theta_e > 0. &&
+            isfinite(modvar.B) && modvar.B > 0.) {
+            pol_integration_step(modvar, frequency, &dl_current, C_CONST, fluid_X,
                                  k_u, k_d, &POLARIZATION_ACTIVE, f_u,
                                  f_tetrad_u, tetrad_d, tetrad_u, S_A, &Iinv,
-                                 &Iinv_pol, tau, tauF,axion_omega,axion_norm,phase_index,block,pixel);
-        } // End of if(IN_VOLUME)
+                                 &Iinv_pol, tau, tauF);
+        }
+        // Retain the chosen post-plasma (Lie-split) update, but perform it for
+        // every forward ray segment, independently of plasma/sigma/pitch gates.
+        // Forward delta_chi = A(p-1)-A(p), P -> exp(+2i delta_chi) P.
+        if (POLARIZATION_ACTIVE && axion != NULL && axion->norm != 0.) {
+            double A_here, A_forward;
+            int status = axion_field_value(axion, X_u, &A_here);
+            if (status == AXION_OK)
+                status = axion_field_value(axion, X_u_next, &A_forward);
+            if (status != AXION_OK) {
+                fprintf(stderr, "Axion field error block=%d pixel=%d record=%d: %s\n",
+                        block, pixel, path_counter, axion_error(status));
+                exit(EXIT_FAILURE);
+            }
+            if (!axion_rotate_polarization(X_u, wave_geometric, A_forward - A_here, f_u)) {
+                fprintf(stderr, "Invalid axion screen block=%d pixel=%d record=%d\n",
+                        block, pixel, path_counter);
+                exit(EXIT_FAILURE);
+            }
+        }
+        LOOP_i k_u[i] = wave_geometric[i];
+        dl_current = dl_geometric;
 
         // SPACETIME-INTEGRATION STEP
         /////////////////////////////

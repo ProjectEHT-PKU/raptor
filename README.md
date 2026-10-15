@@ -16,6 +16,24 @@ Bronzwaer, Younsi, Davelaar et al. 2020, A&A, 641, A126
 
 Davelaar and Haiman 2022, PRD, 105, 10, 103010 
 
+# Axion fork: corrected source interface
+
+The axion extension now requires independent `AXION_ALPHA` (radial-table mass)
+and `AXION_OMEGA` (real oscillation frequency), plus explicit normalization,
+phase and table path. Legacy omega-only inputs are rejected; existing run
+wrappers must be updated before use. See [the input contract](docs/axion-input.md)
+and [source-fix scope and validation](docs/AXION_SOURCE_FIXES.md).
+
+Synthetic regressions (C99/OpenMP compiler, no GRMHD or HDF5 dependency):
+
+```bash
+bash tests/run_tests.sh
+```
+
+These tests do not ray-trace scientific data. The full program still needs the
+libraries below. The upstream plasma solver and thermal coefficients are not
+updated by these axion fixes.
+
 # Installation
 
 RAPTOR needs hdf5, gsl, and openmp libraries.

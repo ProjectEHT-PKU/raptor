@@ -1,0 +1,154 @@
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/main.c -o build/main.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/core.c -o build/core.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/io.c -o build/io.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/GRmath.c -o build/GRmath.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/gr_integrator.c -o build/gr_integrator.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/rte_integrator.c -o build/rte_integrator.o
+/home/canoziia/MyProject/PHYS/raptor/src/gr_integrator.c: In function ‘integrate_geodesic’:
+/home/canoziia/MyProject/PHYS/raptor/src/gr_integrator.c:386:27: warning: ‘thetadot_prev’ may be used uninitialized [-Wmaybe-uninitialized]
+  386 |         if (thetadot_prev * photon_u[6] < 0. && *steps > 2)
+      |             ~~~~~~~~~~~~~~^~~~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/gr_integrator.c:340:12: note: ‘thetadot_prev’ was declared here
+  340 |     double thetadot_prev;
+      |            ^~~~~~~~~~~~~
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/pol_rte_integrator.c -o build/pol_rte_integrator.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/metric.c -o build/metric.o
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: warning: argument 3 of type ‘double[8]’ with mismatched bound [-Warray-parameter=]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+In file included from /home/canoziia/MyProject/PHYS/raptor/src/metric.c:8:
+/home/canoziia/MyProject/PHYS/raptor/src/functions.h:136:58: note: previously declared as ‘double[4]’
+  136 | void initialize_photon(double alpha, double beta, double k_u[4], double t_init);
+      |                                                   ~~~~~~~^~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c: In function ‘initialize_photon’:
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1185:13: warning: array subscript 4 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1185 |     photon_u[4] = k_u[0];
+      |     ~~~~~~~~^~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 32 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1186:13: warning: array subscript 5 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1186 |     photon_u[5] = k_u[1];
+      |     ~~~~~~~~^~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 40 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1187:13: warning: array subscript 6 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1187 |     photon_u[6] = k_u[2];
+      |     ~~~~~~~~^~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 48 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1188:13: warning: array subscript 7 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1188 |     photon_u[7] = k_u[3];
+      |     ~~~~~~~~^~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 56 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1210:9: warning: array subscript 6 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1210 |         Ug2_approx_rand(photon_u[6],
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1211 |                         photon_u[2]); // We only transform theta - r is
+      |                         ~~~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 48 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1209:13: warning: array subscript 6 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1209 |     photon_u[6] =
+      |     ~~~~~~~~^~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 48 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1198:17: warning: array subscript 4 is outside array bounds of ‘double[4]’ [-Warray-bounds=]
+ 1198 |         photon_u[i + 4] = KSphoton_u[i + 4];
+      |         ~~~~~~~~^~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1135:58: note: at offset 32 into object ‘photon_u’ of size [0, 32]
+ 1135 | void initialize_photon(double alpha, double beta, double photon_u[8],
+      |                                                   ~~~~~~~^~~~~~~~~~~
+/home/canoziia/MyProject/PHYS/raptor/src/metric.c:1198:25: warning: ‘__builtin_memcpy’ offset [32, 63] is out of the bounds [0, 32] [-Warray-bounds=]
+ 1198 |         photon_u[i + 4] = KSphoton_u[i + 4];
+      |         ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/pol_emission.c -o build/pol_emission.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/tetrad.c -o build/tetrad.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c model.c -o build/model.o
+model.c: In function ‘get_fluid_params’:
+model.c:1185:12: warning: unused variable ‘rc’ [-Wunused-variable]
+ 1185 |     double rc = sqrt(xc * xc + yc * yc);
+      |            ^~
+model.c: In function ‘read_node’:
+model.c:139:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  139 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c: In function ‘init_grmhd_data’:
+model.c:559:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  559 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:562:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  562 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:565:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  565 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:568:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  568 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:571:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  571 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:574:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  574 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:577:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  577 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:580:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  580 |     fread(buffer_i, sizeof(int), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:583:5: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  583 |     fread(buffer, sizeof(double), 1, file_id);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:596:9: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  596 |         fread(buffer_i, sizeof(int), 1, file_id);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:601:9: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  601 |         fread(buffer, sizeof(double), 1, file_id);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:625:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  625 |     fscanf(inputgrid, "%s %s %d", temp, temp2, &nxlone[0]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:626:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  626 |     fscanf(inputgrid, "%s %s %d", temp, temp2, &nxlone[1]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:628:9: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  628 |         fscanf(inputgrid, "%s %s %d", temp, temp2, &nxlone[2]);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:630:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  630 |     fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmin[0]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:631:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  631 |     fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmin[1]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:633:9: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  633 |         fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmin[2]);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:635:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  635 |     fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmax[0]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:636:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  636 |     fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmax[1]);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:638:9: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  638 |         fscanf(inputgrid, "%s %s %lf", temp, temp2, &xprobmax[2]);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:640:5: warning: ignoring return value of ‘fscanf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  640 |     fscanf(inputgrid, "%s %s %lf", temp, temp2, &hslope);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model.c:795:17: warning: ignoring return value of ‘fread’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  795 |                 fread(buffer, sizeof(double), 1, file_id);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/constants.c -o build/constants.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/camera.c -o build/camera.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/axion.c -o build/axion.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 build/main.o build/core.o build/io.o build/GRmath.o build/gr_integrator.o build/rte_integrator.o build/pol_rte_integrator.o build/metric.o build/pol_emission.o build/tetrad.o build/model.o build/constants.o build/camera.o build/axion.o -fopenmp -lm -lgsl -lgslcblas -lhdf5 -o RAPTOR
+
+EXIT=0

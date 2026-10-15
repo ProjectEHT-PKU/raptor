@@ -10,6 +10,8 @@
 #ifndef GLOBAL_VARS_H
 #define GLOBAL_VARS_H
 
+#include "axion.h"
+
 // CAMERA.C
 ///////////
 
@@ -21,6 +23,12 @@ extern int max_level;
 /////////
 
 extern char GRMHD_FILE[256];
+
+extern double axion_alpha, axion_omega, axion_norm;
+extern int phase_index;
+extern char axion_table[256];
+/* Initialized once after model/constants setup; read-only during ray tracing. */
+extern AxionModel axion_model;
 
 extern double MBH, M_UNIT, TIME_INIT, INCLINATION;
 extern double R_HIGH, R_LOW;

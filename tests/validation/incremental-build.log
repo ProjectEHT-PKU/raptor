@@ -1,0 +1,4 @@
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 -fopenmp  -std=c99  -O2 -lm -lgsl -Wall -Wno-unused-but-set-variable -MMD -MP -c /home/canoziia/MyProject/PHYS/raptor/src/pol_rte_integrator.c -o build/pol_rte_integrator.o
+gcc -I/home/canoziia/MyProject/PHYS/raptor/src -I/tmp/raptor-fixed-build-z063T7 build/main.o build/core.o build/io.o build/GRmath.o build/gr_integrator.o build/rte_integrator.o build/pol_rte_integrator.o build/metric.o build/pol_emission.o build/tetrad.o build/model.o build/constants.o build/camera.o build/axion.o -fopenmp -lm -lgsl -lgslcblas -lhdf5 -o RAPTOR
+
+EXIT=0

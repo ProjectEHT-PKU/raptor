@@ -47,6 +47,10 @@
 #include "model_global_vars.h"
 
 int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s model.in GRMHD_FILE TIME_INIT\n", argv[0]);
+        return EXIT_FAILURE;
+    }
 
     // INPUT FILE
     /////////////
@@ -89,6 +93,33 @@ int main(int argc, char *argv[]) {
     // These depend on the black hole spin
     set_constants();
 
+    /* a/hslope are now available. Load exactly once on the startup thread,
+     * before init_camera/prerun_refine or any parallel ray evaluation. */
+    AxionCoordinates axion_coords;
+#if (metric == BL)
+    axion_coords = AXION_BL;
+#elif (metric == KS)
+    axion_coords = AXION_KS;
+#elif (metric == MKSBHAC)
+    axion_coords = AXION_MKSBHAC;
+#else
+    if (axion_norm != 0) {
+        fprintf(stderr, "AXION_NORM>0 requires BL, KS or MKSBHAC coordinates; "
+                        "metric=%d is unsupported\n", metric);
+        return EXIT_FAILURE;
+    }
+    /* Disabled models load nothing, even for unsupported metric choices. */
+    axion_coords = AXION_BL;
+#endif
+    int axion_status = axion_model_init(&axion_model, axion_table,
+                                        axion_alpha, axion_omega, axion_norm,
+                                        phase_index, a, hslope, axion_coords);
+    if (axion_status != AXION_OK) {
+        fprintf(stderr, "Axion initialization failed for %s: %s\n",
+                axion_table, axion_error(axion_status));
+        return EXIT_FAILURE;
+    }
+
     // MAIN PROGRAM LOOP
     ////////////////////
 
@@ -109,6 +140,12 @@ int main(int argc, char *argv[]) {
 #if (FREQS == FREQLOG)
     for (int f = 0; f < num_frequencies; f++) { // For all frequencies...
         frequencies[f] = FREQ_MIN * pow(10., (double)f / (double)FREQS_PER_DEC);
+        if (!isfinite(frequencies[f]) || frequencies[f] <= 0) {
+            fprintf(stderr, "Log frequency grid overflows at index %d\n", f);
+            axion_model_free(&axion_model);
+            free(intensityfield);
+            return EXIT_FAILURE;
+        }
         fprintf(stderr, "freq = %+.15e\n", frequencies[f]);
     }
 #elif (FREQS == FREQFILE)
@@ -117,12 +154,22 @@ int main(int argc, char *argv[]) {
 
     if (input == NULL) {
         fprintf(stderr, "Cannot read frequencies.txt\n");
-        exit(1);
+        axion_model_free(&axion_model);
+        free(intensityfield);
+        return EXIT_FAILURE;
     }
     for (int f = 0; f < num_frequencies; f++) {
-        fscanf(input, "%lf", &frequencies[f]);
+        if (fscanf(input, "%lf", &frequencies[f]) != 1 ||
+            !isfinite(frequencies[f]) || frequencies[f] <= 0) {
+            fprintf(stderr, "frequencies.txt: expected positive finite frequency at index %d\n", f);
+            fclose(input);
+            axion_model_free(&axion_model);
+            free(intensityfield);
+            return EXIT_FAILURE;
+        }
         fprintf(stderr, "freq = %+.15e\n", frequencies[f]);
     }
+    fclose(input);
 #endif
 
     fprintf(stderr, "\nStarting ray tracing\n\n");
@@ -167,6 +214,7 @@ int main(int argc, char *argv[]) {
     //////////////////////////
 
     free(intensityfield);
+    axion_model_free(&axion_model);
 
     fprintf(stderr, "\nThat's all folks!\n");
 
